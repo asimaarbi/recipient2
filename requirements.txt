@@ -1,0 +1,11 @@
+flask
+flask_sqlalchemy
+flask_marshmallow
+flask_admin
+werkzeug
+flask_restful
+marshmallow-sqlalchemy
+requests
+wtforms
+email_validator
+
