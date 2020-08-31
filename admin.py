@@ -93,7 +93,7 @@ class UserModelView(MyModeView):
 
     form_args = {
         'email': {
-            'validators': [Email()]
+            'validators': [DataRequired()]
         },
         'phone': {
             'validators': [DataRequired()]
