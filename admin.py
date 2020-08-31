@@ -63,7 +63,7 @@ class UserModelView(MyModeView):
         email = form.data["email"]
         phone = form.data["phone"]
         import requests
-        requests.post("http://localhost:9000/call",
+        requests.post("http://89.244.79.27:9000/call",
                       json={"procedure": "org.deskconn.recipient",
                             "args": [uid, email, phone, 'create']})
         return model
@@ -75,7 +75,7 @@ class UserModelView(MyModeView):
         phone = form.data["phone"]
         import requests
         if updated:
-            requests.post("http://localhost:9000/call",
+            requests.post("http://89.244.79.27:9000/call",
                           json={"procedure": "org.deskconn.recipient",
                                 "args": [uid, email, phone, "update"]})
             return updated
@@ -83,7 +83,7 @@ class UserModelView(MyModeView):
     def delete_model(self, form):
         deleted = super().delete_model(form)
         import requests
-        result = requests.post("http://localhost:9000/call",
+        result = requests.post("http://89.244.79.27:9000/call",
                       json={"procedure": "org.deskconn.recipient",
                             "args": [form.uid , f'{form.email}', f'{form.phone}', 'delete']})
         return deleted
