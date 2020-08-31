@@ -57,15 +57,45 @@ class SuperModelView(MyModeView):
 class UserModelView(MyModeView):
     can_create = True
 
+    def create_model(self, form):
+        model = super().create_model(form)
+        uid = model.uid
+        email = form.data["email"]
+        phone = form.data["phone"]
+        import requests
+        requests.post("http://localhost:9000/call",
+                      json={"procedure": "org.deskconn.recipient",
+                            "args": [uid, email, phone, 'create']})
+        return model
+
+    def update_model(self, form, model):
+        updated = super().update_model(form, model)
+        uid = model.uid
+        email = form.data["email"]
+        phone = form.data["phone"]
+        import requests
+        if updated:
+            requests.post("http://localhost:9000/call",
+                          json={"procedure": "org.deskconn.recipient",
+                                "args": [uid, email, phone, "update"]})
+            return updated
+
+    def delete_model(self, form):
+        deleted = super().delete_model(form)
+        import requests
+        result = requests.post("http://localhost:9000/call",
+                      json={"procedure": "org.deskconn.recipient",
+                            "args": [form.uid , f'{form.email}', f'{form.phone}', 'delete']})
+        return deleted
+
     column_list = ['name', 'email', 'phone']
     form_columns = ['name', 'email', 'phone']
 
     form_args = {
         'email': {
             'validators': [Email()]
+        },
+        'phone': {
+            'validators': [DataRequired()]
         }
     }
-
-
-
-
