@@ -67,7 +67,7 @@ class MyAdminIndexView(AdminIndexView):
                 return redirect('/user')
         if not session.get('logged_in'):
             return render_template('login.html')
-        return redirect('/user')
+            return redirect('/user')
 
 
 if __name__ == '__main__':

@@ -1,8 +1,10 @@
-from flask import session
+import requests
+from flask import session, redirect
+from flask import flash
 from werkzeug.security import generate_password_hash
 from flask_admin.contrib.sqla import ModelView
 
-from wtforms.validators import required, Email, DataRequired
+from wtforms.validators import required, DataRequired
 
 from models import db
 
@@ -15,6 +17,18 @@ class MyModeView(ModelView):
             return False
         if session.get('logged_in'):
             return True
+
+
+def send_request(uid, email, phone, status):
+    result = requests.post("http://codebase.pk:9002/call",
+                           json={"procedure": "org.deskconn.recipient",
+                                 "args": [uid, email, phone, status]})
+    j = result.json()
+    if 'error' in j:
+        flash('Telemarie not booted')
+        return redirect('/user')
+    else:
+        return redirect('/user')
 
 
 class SuperModelView(MyModeView):
@@ -59,33 +73,18 @@ class UserModelView(MyModeView):
 
     def create_model(self, form):
         model = super().create_model(form)
-        uid = model.uid
-        email = form.data["email"]
-        phone = form.data["phone"]
-        import requests
-        requests.post("http://89.244.79.27:9000/call",
-                      json={"procedure": "org.deskconn.recipient",
-                            "args": [uid, email, phone, 'create']})
+        send_request(model.uid, form.data["email"], form.data["phone"], "create")
         return model
 
     def update_model(self, form, model):
         updated = super().update_model(form, model)
-        uid = model.uid
-        email = form.data["email"]
-        phone = form.data["phone"]
-        import requests
         if updated:
-            requests.post("http://89.244.79.27:9000/call",
-                          json={"procedure": "org.deskconn.recipient",
-                                "args": [uid, email, phone, "update"]})
+            send_request(model.uid, form.data["email"], form.data["phone"], "update")
             return updated
 
     def delete_model(self, form):
         deleted = super().delete_model(form)
-        import requests
-        result = requests.post("http://89.244.79.27:9000/call",
-                      json={"procedure": "org.deskconn.recipient",
-                            "args": [form.uid , f'{form.email}', f'{form.phone}', 'delete']})
+        send_request(form.uid, form.email, form.phone, 'delete')
         return deleted
 
     column_list = ['name', 'email', 'phone']
