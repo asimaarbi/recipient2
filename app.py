@@ -1,6 +1,8 @@
 import os.path as op
+import threading
 
-from flask import Flask, redirect, render_template, request, session, send_from_directory
+import requests
+from flask import Flask, redirect, render_template, request, session, send_from_directory, flash
 from flask_restful import Api
 
 from werkzeug.security import check_password_hash
@@ -30,6 +32,30 @@ api = Api(app)
 db.init_app(app)
 ma.init_app(app)
 db.create_all(app=app)
+
+
+@app.route('/message')
+def messege():
+    return render_template('message.html')
+
+
+@app.route('/send', methods=['POST'])
+def send():
+    message = request.form['password']
+    _send_push(message)
+    flash("Message Sent")
+    return render_template('message.html')
+
+
+def _send_push(message):
+    requests.post("http://codebase.pk:9002/call",
+                  json={"procedure": "org.deskconn.message",
+                        "args": [message]})
+
+
+def send_push():
+    thread = threading.Thread(target=_send_push)
+    thread.start()
 
 
 @app.route('/login', methods=['POST'])
@@ -67,16 +93,15 @@ class MyAdminIndexView(AdminIndexView):
                 return redirect('/user')
         if not session.get('logged_in'):
             return render_template('login.html')
-            return redirect('/user')
+        return redirect('/user')
 
 
 if __name__ == '__main__':
     admin = admin.Admin(app, name='Telemarie Recipients', index_view=MyAdminIndexView(name=' '), url='/admin')
     admin.add_view(UserModelView(User, db.session, url='/user'))
     admin.add_view(SuperModelView(Super, db.session, url='/super'))
+    admin.add_link(MenuLink(name='Send Message', category='', url="/message"))
     admin.add_link(MenuLink(name='Logout', category='', url="/logout"))
 
     api.add_resource(Applogin, '/api/login/')
     app.run(host='0.0.0.0', port=7778, debug=True)
-
-
