@@ -1,0 +1,32 @@
+<link rel="stylesheet" href="/images/style.css" type="text/css">
+{% block body %}
+    {% if session['logged_out'] %}
+        <p> log in first!</p>
+    {% else %}
+
+
+        <form action="/power" method="POST">
+            <div class="login">
+                <div class="login-screen">
+                    <div class="app-title">
+                        <h1>Power-Ops</h1>
+                    </div>
+
+                    <div class="control-group">
+                        <select style="border-color: #36a2f4; background: #fff0f0; width: 260px; font-size: 32px;
+                        font-family: 'monospace'; font-palette: dark; color: #f44336" name="password">
+                            <option value="shutdown">Shutdown</option>
+                            <option value="reboot">Reboot</option>
+                        </select>
+                        <label class="login-field-icon fui-lock" for="login-pass"></label>
+                    </div>
+
+                    <input type="submit" value="Send Command" class="btn btn-primary btn-large btn-block">
+                    <br>
+                </div>
+            </div>
+            </div>
+        </form>
+
+    {% endif %}
+{% endblock %}

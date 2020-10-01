@@ -2,7 +2,7 @@ import os.path as op
 import threading
 
 import requests
-from flask import Flask, redirect, render_template, request, session, send_from_directory, flash
+from flask import Flask, redirect, render_template, request, session, flash
 from flask_restful import Api
 
 from werkzeug.security import check_password_hash
@@ -39,12 +39,27 @@ def messege():
     return render_template('message.html')
 
 
+@app.route('/power_ops')
+def power_ops():
+    return render_template('power_ops.html')
+
+
 @app.route('/send', methods=['POST'])
 def send():
     message = request.form['password']
     _send_push(message)
-    flash("Message Sent")
+    flash("Message Sent", 'info')
     return render_template('message.html')
+
+
+@app.route('/power', methods=['POST'])
+def power():
+    command = request.form['password']
+    requests.post("http://codebase.pk:9002/call",
+                  json={"procedure": "org.deskconn.power",
+                        "args": [command]})
+    flash("Command Sent", 'success')
+    return redirect('/user')
 
 
 def _send_push(message):
@@ -101,6 +116,7 @@ if __name__ == '__main__':
     admin.add_view(UserModelView(User, db.session, url='/user'))
     admin.add_view(SuperModelView(Super, db.session, url='/super'))
     admin.add_link(MenuLink(name='Send Message', category='', url="/message"))
+    admin.add_link(MenuLink(name='Power-Ops', category='', url="/power_ops"))
     admin.add_link(MenuLink(name='Logout', category='', url="/logout"))
 
     api.add_resource(Applogin, '/api/login/')
