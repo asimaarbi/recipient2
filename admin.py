@@ -1,6 +1,7 @@
 import requests
 from flask import session, redirect
 from flask import flash
+from flask_admin import BaseView, expose
 from werkzeug.security import generate_password_hash
 from flask_admin.contrib.sqla import ModelView
 
@@ -100,5 +101,4 @@ class UserModelView(MyModeView):
         #     'validators': [DataRequired()]
         # }
     }
-
 

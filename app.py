@@ -4,12 +4,13 @@ import threading
 import requests
 from flask import Flask, redirect, render_template, request, session, flash, url_for
 from flask_restful import Api
+from flask_login import LoginManager, current_user, login_user, logout_user
 
 from werkzeug.security import check_password_hash
 
 import flask_admin as admin
 from flask_admin import expose
-from flask_admin.base import AdminIndexView
+from flask_admin.base import AdminIndexView, BaseView
 from flask_admin.menu import MenuLink
 
 from admin import UserModelView, SuperModelView
@@ -32,6 +33,13 @@ api = Api(app)
 db.init_app(app)
 ma.init_app(app)
 db.create_all(app=app)
+
+login = LoginManager(app)
+
+
+@login.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
 
 
 @app.route('/message')
@@ -79,7 +87,8 @@ def login():
         session['logged_in'] = True
         if 'user' in session:
             session.pop('user')
-        return redirect('/user')
+        return redirect('/recipients')
+        # return redirect('/user')
     super = Super.query.filter_by(email=request.form.get('username')).first()
     if super:
         if check_password_hash(super.password, request.form.get('password')):
@@ -93,6 +102,7 @@ def login():
             return render_template('otp.html', username=user.username)
         if check_password_hash(user.password, request.form.get('password')):
             session['logged_in'] = True
+            login_user(user)
             return redirect('/user')
         error = 'Invalid Credentials. Please try again.'
         return render_template('login.html', error=error)
@@ -124,6 +134,7 @@ def verify():
 @app.route('/logout', methods=['GET'])
 def logout():
     session['logged_in'] = False
+    logout_user()
     return render_template('login.html')
 
 
@@ -138,13 +149,21 @@ class MyAdminIndexView(AdminIndexView):
         return redirect('/user')
 
 
+class RecipientsView(BaseView):
+    @expose('/')
+    def index(self):
+        error=current_user.is_aunthenticated
+        return self.render('admin/recipients.html', error=error)
+
+
 if __name__ == '__main__':
-    admin = admin.Admin(app, name='Telemarie Recipients', index_view=MyAdminIndexView(name=' '), url='/admin')
+    admin = admin.Admin(app, template_mode='bootstrap3', name='Telemarie Recipients', index_view=MyAdminIndexView(name=' '), url='/admin')
     admin.add_view(UserModelView(User, db.session, url='/user'))
     admin.add_view(SuperModelView(Super, db.session, url='/super'))
-    admin.add_link(MenuLink(name='Send Message', category='', url="/message"))
-    admin.add_link(MenuLink(name='Power-Ops', category='', url="/power_ops"))
-    admin.add_link(MenuLink(name='Logout', category='', url="/logout"))
+    admin.add_link(MenuLink(name='Send Message', url="/message"))
+    admin.add_link(MenuLink(name='Power-Ops', url="/power_ops"))
+    admin.add_link(MenuLink(name='Logout', url="/logout"))
+    admin.add_view(RecipientsView(name='recipients', endpoint="/recipients", url="/recipients"))
 
     api.add_resource(Applogin, '/api/login/')
     app.run(host='0.0.0.0', port=7778, debug=True)
