@@ -73,28 +73,32 @@ class UserModelView(MyModeView):
 
     def create_model(self, form):
         model = super().create_model(form)
-        send_request(model.uid, form.data["email"], form.data["phone"], "create")
+        model.password = generate_password_hash(form.data['password'])
+        db.session.add(model)
+        db.session.commit()
         return model
 
     def update_model(self, form, model):
         updated = super().update_model(form, model)
         if updated:
-            send_request(model.uid, form.data["email"], form.data["phone"], "update")
-            return updated
+            model.password = generate_password_hash(form.data['password'])
+            db.session.commit()
+        return updated
 
     def delete_model(self, form):
         deleted = super().delete_model(form)
-        send_request(form.uid, form.email, form.phone, 'delete')
         return deleted
 
-    column_list = ['name', 'email', 'phone']
-    form_columns = ['name', 'email', 'phone']
+    column_list = ['username', 'email', 'admin', 'active', 'otp']
+    # form_columns = ['name', 'email', 'phone']
 
     form_args = {
         'email': {
             'validators': [DataRequired()]
         },
-        'phone': {
-            'validators': [DataRequired()]
-        }
+        # 'phone': {
+        #     'validators': [DataRequired()]
+        # }
     }
+
+

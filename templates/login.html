@@ -41,6 +41,9 @@
                         </div>
 
                         <input type="submit" value="Log in" class="btn btn-primary btn-large btn-block">
+                        <a href="{{ url_for('register') }}">
+                            <p>Create account, Sign Up.</p>
+                        </a>
                         <br>
                         {% if error %}
                             <div class="alert">

@@ -2,7 +2,7 @@ import os.path as op
 import threading
 
 import requests
-from flask import Flask, redirect, render_template, request, session, flash
+from flask import Flask, redirect, render_template, request, session, flash, url_for
 from flask_restful import Api
 
 from werkzeug.security import check_password_hash
@@ -73,25 +73,52 @@ def send_push():
     thread.start()
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['Get', 'POST'])
 def login():
-    if request.form['username'] == 'admin' and request.form['password'] == 'password':
+    if request.form.get('username') == 'admin' and request.form.get('password') == 'password':
         session['logged_in'] = True
         if 'user' in session:
             session.pop('user')
         return redirect('/user')
-    super = Super.query.filter_by(email=request.form['username']).first()
+    super = Super.query.filter_by(email=request.form.get('username')).first()
     if super:
-        if check_password_hash(super.password, request.form['password']):
+        if check_password_hash(super.password, request.form.get('password')):
             session['logged_in'] = True
-            return redirect('/user')
-        if 'super' in session:
-            session.pop('super')
             return redirect('/user')
         error = 'Invalid Credentials. Please try again.'
         return render_template('login.html', error=error)
-    error = 'Invalid Credentials. Please try again.'
-    return render_template('login.html', error=error)
+    user = User.query.filter_by(email=request.form.get('username')).first()
+    if user:
+        if not user.active:
+            return render_template('otp.html', username=user.username)
+        if check_password_hash(user.password, request.form.get('password')):
+            session['logged_in'] = True
+            return redirect('/user')
+        error = 'Invalid Credentials. Please try again.'
+        return render_template('login.html', error=error)
+    return render_template('login.html')
+
+
+@app.route('/register', methods=['Get', 'POST'])
+def register():
+    user = User.query.filter_by(email=request.form.get('username')).first()
+    if user:
+        error = 'Already registered, Redirected to login'
+        return render_template('login', error=error)
+    return render_template('register.html')
+
+
+@app.route('/verify', methods=['Get', 'POST'])
+def verify():
+    user = User.query.filter_by(username=request.form.get('username')).first()
+    if user:
+        print(user.username)
+        if user.otp == request.form.get('otp'):
+            user.active = True
+            db.session.commit()
+            return render_template('login.html')
+    error = 'invalid otp'
+    return render_template('otp.html', error=error)
 
 
 @app.route('/logout', methods=['GET'])
