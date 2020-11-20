@@ -1,45 +1,63 @@
 import os.path as op
 import threading
+import json
 
 import requests
-from flask import Flask, redirect, render_template, request, session, flash, url_for
-from flask_restful import Api
-from flask_login import LoginManager, current_user, login_user, logout_user
+from flask import Flask, redirect, render_template, request, session, flash, url_for, jsonify
+from flask_marshmallow import Marshmallow
+from flask_restful import Api, Resource, reqparse
+from flask_login import login_user, logout_user
 
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 import flask_admin as admin
 from flask_admin import expose
 from flask_admin.base import AdminIndexView, BaseView
 from flask_admin.menu import MenuLink
+from flask_admin.base import AdminIndexView, BaseView
 
-from admin import UserModelView, SuperModelView
-from models import User, db, Super
-from serializers import ma
+from flask_admin.contrib.sqla import ModelView
 
-from resources import Applogin
+from models import User, db, Super, Telemarie, Switch, Recipient
 
 UPLOAD_FOLDER = './upload'
-app = Flask(__name__, static_folder='images')
+app = Flask(__name__)
 path = op.join(op.dirname(__file__), 'statics')
 images = op.join(op.dirname(__file__), 'images')
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///main.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
+# app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 
 api = Api(app)
 db.init_app(app)
-ma.init_app(app)
+ma = Marshmallow()
+
 db.create_all(app=app)
 
-login = LoginManager(app)
+
+class UserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        # Fields to expose
+        fields = ("email", "phone")
 
 
-@login.user_loader
-def load_user(user_id):
-    return User.query.get(user_id)
+class RecipientResource(Resource):
+    def get(self):
+        emails = []
+        phones = []
+        parser = reqparse.RequestParser(bundle_errors=True)
+        parser.add_argument('switch', type=str, help='Switch no', required=True)
+        args = parser.parse_args()
+        users = Recipient.query.filter_by(switch_id=args['switch']).all()
+        # schema = UserSchema(many=True)
+        # return schema.dump(users)
+        for user in users:
+            emails.append(user.email)
+            phones.append(user.phone)
+        return {'emails': emails,
+                'phones': phones}, 200
 
 
 @app.route('/message')
@@ -82,31 +100,53 @@ def send_push():
 
 
 @app.route('/login', methods=['Get', 'POST'])
+# def login():
+#     if request.form.get('username') == 'admin' and request.form.get('password') == 'password':
+#         session['logged_in'] = True
+#         if 'user' in session:
+#             session.pop('user')
+#         return redirect('/recipients')
+#         # return redirect('/user')
+#     super = Super.query.filter_by(email=request.form.get('username')).first()
+#     if super:
+#         if check_password_hash(super.password, request.form.get('password')):
+#             session['logged_in'] = True
+#             return redirect('/user')
+#         error = 'Invalid Credentials. Please try again.'
+#         return render_template('login.html', error=error)
+#     user = User.query.filter_by(email=request.form.get('username')).first()
+#     if user:
+#         if not user.active:
+#             return render_template('otp.html', username=user.username)
+#         if check_password_hash(user.password, request.form.get('password')):
+#             session['logged_in'] = True
+#             login_user(user)
+#             return redirect('/user')
+#         error = 'Invalid Credentials. Please try again.'
+#         return render_template('login.html', error=error)
+#     return render_template('login.html')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.form.get('username') == 'admin' and request.form.get('password') == 'password':
-        session['logged_in'] = True
-        if 'user' in session:
-            session.pop('user')
-        return redirect('/recipients')
-        # return redirect('/user')
-    super = Super.query.filter_by(email=request.form.get('username')).first()
-    if super:
-        if check_password_hash(super.password, request.form.get('password')):
+    error = None
+    if request.method == 'POST':
+        if request.form['username'] != 'admin' or request.form['password'] != 'password':
+            error = 'Invalid Credentials. Please try again.'
+        user = User.query.filter_by(email=request.form.get('username')).first()
+        if user:
+            # if not user.active:
+            #     return render_template('otp.html', username=user.username)
+            if check_password_hash(user.password, request.form.get('password')):
+                session['logged_in'] = True
+                # login_user(user)
+                # return redirect('/user')
+                return redirect(url_for('telemarie', username=user.uid))
+            error = 'Invalid Credentials. Please try again.'
+        else:
             session['logged_in'] = True
-            return redirect('/user')
-        error = 'Invalid Credentials. Please try again.'
-        return render_template('login.html', error=error)
-    user = User.query.filter_by(email=request.form.get('username')).first()
-    if user:
-        if not user.active:
-            return render_template('otp.html', username=user.username)
-        if check_password_hash(user.password, request.form.get('password')):
-            session['logged_in'] = True
-            login_user(user)
-            return redirect('/user')
-        error = 'Invalid Credentials. Please try again.'
-        return render_template('login.html', error=error)
-    return render_template('login.html')
+            return redirect(url_for('username'))
+            # return redirect('/user')
+    return render_template('login.html', error=error)
 
 
 @app.route('/register', methods=['Get', 'POST'])
@@ -131,11 +171,62 @@ def verify():
     return render_template('otp.html', error=error)
 
 
-@app.route('/logout', methods=['GET'])
+@app.route('/logout')
 def logout():
     session['logged_in'] = False
-    logout_user()
-    return render_template('login.html')
+    return redirect(url_for('login'))
+
+
+@app.route('/users', methods=['GET', 'POST'])
+def username():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    else:
+        session['logged_in'] = True
+        user = User.query.all()
+        return render_template("user.html", title='Home', users=user)
+
+
+@app.route('/telemarie/<username>', methods=['GET'])
+def telemarie(username):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    else:
+        # user = User.query.filter_by(username=username).first()
+        # if not user:
+        #     return {"message": "username not exist"}, 404
+        user = User.query.filter_by(uid=int(username)).first()
+        name = str(user.username).capitalize()
+        albums = Telemarie.query.filter_by(user_id=int(username)).all()
+        return render_template("telemarie.html", album_dates=albums, name=name)
+
+
+@app.route('/switch/<username>', methods=['GET'])
+def switch(username):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    else:
+        # user = User.query.filter_by(username=username).first()
+        # if not user:
+        #     return {"message": "username not exist"}, 404
+        telemarie = Telemarie.query.filter_by(user_id=int(username)).first()
+        # print(telemarie.identity)
+        albums = Switch.query.filter_by(telemarie_id=int(username)).all()
+        # for album in albums:
+        #     print(album.name)
+        return render_template("switch.html", album_dates=albums)
+
+
+@app.route('/recipient/<username>', methods=['GET'])
+def recipient(username):
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    else:
+        # user = User.query.filter_by(username=username).first()
+        # if not user:
+        #     return {"message": "username not exist"}, 404
+        albums = Recipient.query.filter_by(switch_id=int(username)).all()
+        return render_template("recipient.html", album_dates=albums)
 
 
 class MyAdminIndexView(AdminIndexView):
@@ -149,21 +240,83 @@ class MyAdminIndexView(AdminIndexView):
         return redirect('/user')
 
 
-class RecipientsView(BaseView):
-    @expose('/')
-    def index(self):
-        error=current_user.is_aunthenticated
-        return self.render('admin/recipients.html', error=error)
+class MyModeView(ModelView):
+    can_edit = True
+
+    def is_accessible(self):
+        if session.get('logged_out'):
+            return False
+        if session.get('logged_in'):
+            return True
+
+
+class UserModelView(MyModeView):
+    can_create = True
+
+    # form_choices = {
+    #     'switch': [
+    #         ('1', '1'),
+    #         ('2', '2'),
+    #         ('3', '3'),
+    #         ('4', '4'),
+    #         ('5', '5'),
+    #     ],
+    #     'group': [
+    #         ('admin', 'admin'),
+    #         ('recipient', 'recipient'),
+    #     ]
+    # }
+
+    def create_model(self, form):
+        model = super().create_model(form)
+        model.password = generate_password_hash(form.data['password'])
+        db.session.add(model)
+        db.session.commit()
+        return model
+
+    def update_model(self, form, model):
+        updated = super().update_model(form, model)
+        if updated:
+            model.password = generate_password_hash(form.data['password'])
+            db.session.commit()
+        return updated
+
+
+class TelemarieView(MyModeView):
+    can_edit = True
+    can_create = True
+    form_choices = {
+        'product': [
+            ('telemarie', 'telemarie'),
+            ('teleclause', 'teleclause'),
+        ]
+    }
+
+
+class TelemarieView(MyModeView):
+    can_edit = True
+    can_create = True
+
+
+@app.route('/get_emails/<switch_id>', methods=['Get'])
+def get_emails(switch_id):
+    user = Recipient.query.filter_by(switch_id=switch_id).all()
+    print('test' + switch_id)
+    schema = UserSchema(many=True)
+    return schema.dump(user), 200
 
 
 if __name__ == '__main__':
-    admin = admin.Admin(app, template_mode='bootstrap3', name='Telemarie Recipients', index_view=MyAdminIndexView(name=' '), url='/admin')
+    admin = admin.Admin(app, name='Telemarie Recipients',
+                        index_view=MyAdminIndexView(name=' '), url='/admin')
     admin.add_view(UserModelView(User, db.session, url='/user'))
-    admin.add_view(SuperModelView(Super, db.session, url='/super'))
+    admin.add_view(TelemarieView(Telemarie, db.session, endpoint="/telemarie", url="/telemarie"))
+    admin.add_view(TelemarieView(Switch, db.session, endpoint="/recipeint", url="/recipeint"))
+    admin.add_view(TelemarieView(Recipient, db.session, endpoint="/switch", url="/switch"))
+    # admin.add_view(SuperModelView(Super, db.session, url='/super'))
     admin.add_link(MenuLink(name='Send Message', url="/message"))
     admin.add_link(MenuLink(name='Power-Ops', url="/power_ops"))
     admin.add_link(MenuLink(name='Logout', url="/logout"))
-    admin.add_view(RecipientsView(name='recipients', endpoint="/recipients", url="/recipients"))
 
-    api.add_resource(Applogin, '/api/login/')
+    api.add_resource(RecipientResource, '/api/recipients/')
     app.run(host='0.0.0.0', port=7778, debug=True)
