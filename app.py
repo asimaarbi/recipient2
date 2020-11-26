@@ -306,6 +306,62 @@ def get_emails(switch_id):
     return schema.dump(user), 200
 
 
+@app.route('/delete_user/<uid>')
+def delete_user(uid):
+    user = User.query.filter_by(uid=uid).first()
+    if user:
+        db.session.delete(user)
+    db.session.commit()
+    return '', 204
+
+
+@app.route('/delete_tele/<uid>')
+def delete_tele(uid):
+    tele = Telemarie.query.filter_by(uid=uid).first()
+    if tele:
+        db.session.delete(tele)
+    db.session.commit()
+    return '', 204
+
+
+@app.route('/delete_switch/<uid>')
+def delete_switch(uid):
+    switch = Switch.query.filter_by(uid=uid).first()
+    if switch:
+        db.session.delete(switch)
+    db.session.commit()
+    return '', 204
+
+
+@app.route('/delete_recipient/<uid>')
+def delete_recipient(uid):
+    recipient = Recipient.query.filter_by(uid=uid).first()
+    if recipient:
+        db.session.delete(recipient)
+    db.session.commit()
+    return '', 204
+
+
+# @app.route('/create/user', methods=['POST', 'GET'])
+# def create_user():
+#     username = request.form['username']
+#     email = request.form['author']
+#     password = request.form['admin']
+#     admin = request.form['admin']
+#     otp = request.form['otp']
+#     active = request.form['active']
+#     user = User()
+#     user.username = username
+#     user.email = email
+#     user.password = password
+#     user.admin = admin
+#     user.otp = otp
+#     user.active = active
+#     db.session.add(user)
+#     db.session.commit()
+#     return redirect('/quote')
+
+
 if __name__ == '__main__':
     admin = admin.Admin(app, name='Telemarie Recipients',
                         index_view=MyAdminIndexView(name=' '), url='/admin')

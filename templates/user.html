@@ -29,6 +29,9 @@
         </div>
         <div class="col-lg-12">
             <h1 class="page-header">Users</h1>
+            <a href="{{ url_for('create_uer') }}">
+                <button class="btn-info" type="button" onclick="tryReload()">Create</button>
+            </a>
         </div>
         <table class="table">
             <thead>
@@ -51,11 +54,11 @@
                             <p> {{ user.username }}</p>
                         </a>
                     </td>
-{#                    <td>#}
-{#                        <a href="{{ url_for('delete_user', uid=user.uid) }}">#}
-{#                            <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>#}
-{#                        </a>#}
-{#                    </td>#}
+                    <td>
+                        <a href="{{ url_for('delete_user', uid=user.uid) }}">
+                            <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>
+                        </a>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>

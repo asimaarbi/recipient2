@@ -63,11 +63,11 @@
                             <p> {{ user.active }}</p>
                     </td>
 
-                    {#                    <td>#}
-                    {#                        <a href="{{ url_for('delete_user', uid=user.uid) }}">#}
-                    {#                            <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>#}
-                    {#                        </a>#}
-                    {#                    </td>#}
+                                        <td>
+                                            <a href="{{ url_for('delete_recipient', uid=user.uid) }}">
+                                                <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>
+                                            </a>
+                                        </td>
                 </tr>
             {% endfor %}
             </tbody>

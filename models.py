@@ -23,8 +23,8 @@ class User(db.Model):
     otp = db.Column(db.String(255), nullable=True)
     active = db.Column(db.Boolean, default=False)
 
-    telemarie = db.relationship('Telemarie', backref='users')
-    us_recipient = db.relationship('Recipient', backref='users')
+    telemarie = db.relationship('Telemarie', backref='users', cascade="all, delete")
+    us_recipient = db.relationship('Recipient', backref='users', cascade="all, delete")
 
     def __str__(self):
         return self.username
@@ -37,8 +37,8 @@ class Telemarie(db.Model):
     type = db.Column(db.String(50), nullable=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.uid"))
-    switch = db.relationship('Switch', backref='telemaries')
-    tel_recipient = db.relationship('Recipient', backref='telemaries')
+    switch = db.relationship('Switch', backref='telemaries', cascade="all, delete")
+    tel_recipient = db.relationship('Recipient', backref='telemaries', cascade="all, delete")
 
     def __str__(self):
         return self.identity
@@ -50,7 +50,7 @@ class Switch(db.Model):
     name = db.Column(db.String(50), nullable=True)
 
     telemarie_id = db.Column(db.Integer, db.ForeignKey("telemaries.uid"))
-    Recipient = db.relationship('Recipient', backref='switches')
+    Recipient = db.relationship('Recipient', backref='switches', cascade="all, delete")
 
     def __str__(self):
         return self.name
