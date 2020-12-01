@@ -99,7 +99,17 @@ def send_push():
     thread.start()
 
 
-@app.route('/login', methods=['Get', 'POST'])
+@app.route('/user/<uid>')
+def get_user(uid):
+    print(uid)
+    user = User.query.filter_by(uid=uid).first()
+    if user:
+        return user
+        print(user.username)
+    return "", 404
+
+
+# @app.route('/login', methods=['Get', 'POST'])
 # def login():
 #     if request.form.get('username') == 'admin' and request.form.get('password') == 'password':
 #         session['logged_in'] = True
@@ -125,7 +135,17 @@ def send_push():
 #         error = 'Invalid Credentials. Please try again.'
 #         return render_template('login.html', error=error)
 #     return render_template('login.html')
+
 @app.route('/', methods=['GET', 'POST'])
+def main():
+    user = User.query.all()
+    telemarie = Telemarie.query.all()
+    switch = Switch.query.all()
+    recipient = Recipient.query.all()
+    return render_template('main.html', title='Home', recipients=recipient,
+                           telemaries=telemarie, switches=switch)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -183,8 +203,11 @@ def username():
         return redirect(url_for('login'))
     else:
         session['logged_in'] = True
+        test = 'test'
         user = User.query.all()
-        return render_template("user.html", title='Home', users=user)
+        telemarie = Telemarie.query.all()
+        switch = Switch.query.all()
+        return render_template("user.html", title='Home', users=user, telemaries=telemarie, switches=switch)
 
 
 @app.route('/telemarie/<username>', methods=['GET'])

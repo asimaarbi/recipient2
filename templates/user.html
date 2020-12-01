@@ -80,7 +80,7 @@
     </div>
 
 
-    <button class="accordion"><H1>Telemarie</H1></button>
+    <button class="accordion"><H1>Telemaries</H1></button>
     <div class="panel">
         <div class="col-lg-12">
             <h1 class="page-header">Telemaries by {{ name }}</h1>
@@ -88,32 +88,32 @@
         <table class="table">
             <thead>
             <tr>
-                <th scope="col">#</th>
-                <th scope="col">Machine Id</th>
-                <th scope="col">Type</th>
-                <th scope="col"></th>
+                    <th scope="col">#</th>
+                    <th scope="col">Machine Id</th>
+                    <th scope="col">Type</th>
+                    <th scope="col"></th>
 
             </tr>
             </thead>
             <tbody>
-            {% for user in album_dates %}
+            {% for telemarie in telemaries %}
 
                 <tr>
                     <td>
                         <p> {{ loop.index }}</p>
                     </td>
                     <td>
-                        <a href="{{ url_for('switch', username=user.uid) }}">
-                            <p> {{ user.identity }}</p>
+                        <a href="{{ url_for('switch', username=telemarie.uid) }}">
+                            <p> {{ telemarie.identity }}</p>
                         </a>
                     </td>
                     <td>
-                        <a href="{{ url_for('switch', username=user.uid) }}">
-                            <p> {{ user.type }}</p>
+                        <a href="{{ url_for('switch', username=telemarie.uid) }}">
+                            <p> {{ telemarie.type }}</p>
                         </a>
                     </td>
                     <td>
-                        <a href="{{ url_for('delete_tele', uid=user.uid) }}">
+                        <a href="{{ url_for('delete_tele', uid=telemarie.uid) }}">
                             <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>
                         </a>
                     </td>
@@ -122,11 +122,40 @@
             </tbody>
         </table>
     </div>
-    <button class="accordion"><H1>Switch</H1></button>
+    <button class="accordion"><H1>Switches</H1></button>
     <div class="panel">
-        <p>Lorem ipsum..
-            dfhdh
-            fghdfhdfh.</p>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Switch NO</th>
+                <th scope="col"></th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for switch in switches %}
+
+                <tr>
+                    <td>
+                        <p> {{ loop.index }}</p>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('recipient', username=switch.uid) }}">
+                            <p> {{ switch.name }}</p>
+                        </a>
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('delete_switch', uid=switch.uid) }}">
+                            <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
