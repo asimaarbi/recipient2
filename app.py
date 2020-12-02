@@ -142,6 +142,7 @@ def main():
     telemarie = Telemarie.query.all()
     switch = Switch.query.all()
     recipient = Recipient.query.all()
+
     return render_template('main.html', title='Home', recipients=recipient,
                            telemaries=telemarie, switches=switch)
 
