@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+            integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+            integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+            crossorigin="anonymous"></script>
+
+    <title>{{ title }}</title>
+    <style>
+        .dot {
+            height: 15px;
+            width: 15px;
+            background-color: #fc043a;
+            border-radius: 25%;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="container-fluid">
+        <div class="col-sm bg-dark"><h1 style=" color: darkgrey;
+        font-family: Telex" >Welcome To Telemareie Custom Admin</h1></div>
+        {#        <div class="col-sm">#}
+        {#            Choose a user<SELECT name="user">#}
+        {#            {% for user in users %}#}
+        {#                <OPTION value={{ user.uid }}>{{ user.username }}</option>#}
+        {#            {% endfor %}#}
+        {#        </SELECT>#}
+        {#        </div>#}
+        <div class="row">
+            <div class="col-sm">
+                <table class="table table-dark table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Machine</th>
+                        <th scope="col">Type</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for telemarie in telemaries %}
+                        <tr>
+                            <td>
+                                <p> {{ loop.index }}</p>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('switch', username=telemarie.uid) }}">
+                                    <p> {{ telemarie.identity }}</p>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('switch', username=telemarie.uid) }}">
+                                    <p> {{ telemarie.type }}</p>
+                                </a>
+                            </td>
+                            {#                            <td>#}
+                            {#                                <a href="{{ url_for('delete_tele', uid=telemarie.uid) }}">#}
+                            {#                                    <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>#}
+                            {#                                </a>#}
+                            {#                            </td>#}
+                        </tr>
+                        </tbody>
+                        </table>
+                        </div>
+                        <div class="col-sm">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Usernames</th>
+
+                            </tr>
+                            </thead>
+                            {% for user in recipients %}
+                                {% if user.tele_id == telemarie.uid %}
+                                    {#            <div class="col-sm">#}
+                                    <tbody>
+                                    <tr>
+                                        <td>
+                                            <p> {{ loop.index }}</p>
+                                        </td>
+                                        <td>
+                                            <p> {{ user.name }}</p>
+                                        </td>
+                                        {#                                        <td>#}
+                                        {#                                            <a href="{{ url_for('delete_recipient', uid=user.uid) }}">#}
+                                        {#                                                <button class="btn-danger" type="button" onclick="tryReload()">#}
+                                        {#                                                    Delete#}
+                                        {#                                                </button>#}
+                                        {#                                            </a>#}
+                                        {#                                        </td>#}
+                                    </tr>
+                                    </tbody>
+                                    </table>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                        </table>
+
+
+                    {% endfor %}
+
+                    </tbody>
+                    </table>
+                    </div>
+            <div class="col-sm">
+                <table style="width: 30%" class="table table-dark table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">status</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            offline
+                        </td>
+                        <td>
+                            <span class="dot"></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+
+</body>
+</html>
