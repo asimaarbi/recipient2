@@ -143,7 +143,7 @@ def main():
     switch = Switch.query.all()
     recipient = Recipient.query.all()
 
-    return render_template('index.html', title='Home', recipients=recipient,
+    return render_template('index2.html', title='Home', recipients=recipient,
                            telemaries=telemarie, switches=switch)
 
 

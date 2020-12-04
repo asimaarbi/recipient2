@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Telemarie</title>
+    <title>Asim</title>
     <style>
         .red {
             display: inline-block;
@@ -42,11 +42,8 @@
         </ul>
     </div>
 </nav>
-
 <div class="container">
     <div class="row mt-5">
-                {% for telemarie in telemaries %}
-
         <div class="col-sm-6">
             <table class="table table-dark table-hover">
                 <thead>
@@ -58,25 +55,20 @@
                 </tr>
                 </thead>
                 <tbody>
-
-                    <tr >
+                {% for telemarie in telemaries %}
+                    <tr>
                         <th scope="row">{{ loop.index }}</th>
-
-                        <td>
-
-                            <button id="t1{{telemarie.uid}}" value="{{telemarie.uid}}" class=""
-                               data-toggle="collapse"
-                               data-target="#user">{{ telemarie.uid }}</button>
+                        <td id="t1" value="{{ telemarie.uid }}"><a href="#" class="" data-toggle="collapse"
+                                                                   data-target="#user">{{ telemarie.identity }}</a>
                         </td>
-                        {#                        <td><a href="#" class=""  data-toggle="collapse">{{ telemarie.type }}</a>#}
-                        {#                        </td>#}
+                        <td><a href="#" class="" data-toggle="collapse">{{ telemarie.type }}</a>
+                        </td>
                         <td>offline<span class="ml-3 red"></span></td>
                     </tr>
-
+                {% endfor %}
                 </tbody>
             </table>
         </div>
-                    {% for user in recipients %}
         <div class="col-sm-6">
             <div id="user" class="collapse">
                 <table class="table table-dark table-hover">
@@ -87,58 +79,22 @@
                     </tr>
                     </thead>
                     <tbody>
-
-
-                        {#                            {% if user.tele_id == 1 %}#}
-
-                        <tr>
-                            <input type="hidden" id="c{{user.tele_id}}" value="{{user.tele_id}}"></input>
-                            <input type="hidden" id="c1" value="{{user.name}}">
-                            </input>
-
-                            <td id="d"></td>
-                            {#                                    <th scope="row">{{ loop.index }}</th>#}
-                            {#                                    <td><a href="#" class="" data-toggle="collapse"#}
-                            {#                                           data-target="#demo2">{{ user.name }}</a>#}
-                            {#                                    </td>#}
-                        </tr>
-                        {#
-                                             {% endif %}#}
-
-
-
-
-
+                    {% for user in recipients %}
+                        {% if user.tele_id == 1 %}
+                            <tr>
+                                <th scope="row">{{ loop.index }}</th>
+                                <td><a href="#" class="" data-toggle="collapse"
+                                       data-target="#demo2">{{ user.name }}</a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
 
         </div>
-                    <script>
-
-    var el_down = document.getElementById("GFG_DOWN");
-    var inputF = document.getElementById("id1");
-
-    {#function gfg_Run() {#}
-    var getvalue = document.getElementById("t1{{telemarie.uid}}");
-    var getvalue1 = document.getElementById("c");
-    var getvalue2 = document.getElementById("c1").value;
-    {#alert("get= "+getvalue.value + "get1= "+getvalue1.value);#}
-
-        if (getvalue.value != getvalue1.value) {
-            document.getElementById("d").innerHTML = getvalue.value;
-        }
-
-        el_down.innerHTML =
-            "Value = " + "'" + getvalue + "'";
-
-</script>
-                    {% endfor %}
-       {% endfor %}
-
     </div>
-
-
     <div class="row">
         <div class="col-sm-6 ml-auto">
             <div id="demo2" class="collapse">
@@ -154,7 +110,7 @@
                     </thead>
                     <tbody>
                     {% for user in recipients %}
-                        {% if user.tele_id == 1 %}
+                        {% if user.tele_id == 2 %}
                             <tr>
                                 <th scope="row">{{ loop.index }}</th>
                                 <td>{{ user.name }}
@@ -185,7 +141,16 @@
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script>
+    var el_down = document.getElementById("GFG_DOWN");
+    var inputF = document.getElementById("id1");
 
+    function gfg_Run() {
+        {#inputF.value = "textValue";#}
+        el_down.innerHTML =
+            "Value = " + "'" + inputF.value + "'";
+    }
+</script>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
