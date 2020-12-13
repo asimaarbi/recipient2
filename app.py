@@ -60,7 +60,7 @@ class RecipientResource(Resource):
                 'phones': phones}, 200
 
 
-@app.route('/message')
+@app.route('/')
 def messege():
     return render_template('message.html')
 
@@ -137,15 +137,15 @@ def get_user(uid):
 #         return render_template('login.html', error=error)
 #     return render_template('login.html')
 
-@app.route('/', methods=['GET', 'POST'])
-def main():
-    user = User.query.all()
-    telemarie = Telemarie.query.all()
-    switch = Switch.query.all()
-    recipient = Recipient.query.all()
-
-    return render_template('index2.html', title='Home', recipients=recipient,
-                           telemaries=telemarie, switches=switch)
+# @app.route('/', methods=['GET', 'POST'])
+# def main():
+#     user = User.query.all()
+#     telemarie = Telemarie.query.all()
+#     switch = Switch.query.all()
+#     recipient = Recipient.query.all()
+#
+#     return render_template('index2.html', title='Home', recipients=recipient,
+#                            telemaries=telemarie, switches=switch)
 
 
 @app.route('/login', methods=['GET', 'POST'])
