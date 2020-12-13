@@ -21,7 +21,7 @@ from flask_admin.contrib.sqla import ModelView
 from models import User, db, Super, Telemarie, Switch, Recipient
 
 UPLOAD_FOLDER = './upload'
-app = Flask(__name__)
+app = Flask(__name__, static_folder='images')
 path = op.join(op.dirname(__file__), 'statics')
 images = op.join(op.dirname(__file__), 'images')
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
@@ -73,7 +73,8 @@ def power_ops():
 @app.route('/send', methods=['POST'])
 def send():
     message = request.form['password']
-    _send_push(message)
+    machine = request.form['machines']
+    _send_push(message, machine)
     flash("Message Sent", 'info')
     return render_template('message.html')
 
@@ -88,9 +89,9 @@ def power():
     return redirect('/user')
 
 
-def _send_push(message):
-    requests.post("http://codebase.pk:9002/call",
-                  json={"procedure": "org.deskconn.message",
+def _send_push(message, machine):
+    requests.post("http://94.130.187.90:8080/call",
+                  json={"procedure": f"tm.{machine}.message",
                         "args": [message]})
 
 
