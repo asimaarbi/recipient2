@@ -400,4 +400,4 @@ if __name__ == '__main__':
     admin.add_link(MenuLink(name='Logout', url="/logout"))
 
     api.add_resource(RecipientResource, '/api/recipients/')
-    app.run(host='0.0.0.0', port=7778, debug=True)
+    app.run(host='0.0.0.0', port=7777, debug=True)
