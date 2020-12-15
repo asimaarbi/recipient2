@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
-          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <style type="text/css">
         .imgStyle {
             width: 150px;
@@ -12,10 +13,24 @@
             margin-top: 10px;
             margin-left: 10px;
         }
+
+        .custab {
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin: 5% 0;
+            box-shadow: 3px 3px 2px #ccc;
+            transition: 0.5s;
+        }
+
+        .custab:hover {
+            box-shadow: 3px 3px 0px transparent;
+            transition: 0.5s;
+        }
     </style>
 </head>
 <body>
 <div class="container">
+
 
     <div class="row">
         <div>
@@ -27,45 +42,48 @@
                 {% endif %}
             </ul>
         </div>
-        <div class="col-lg-12">
-            <h1 class="page-header">Telemaries by {{ name }}</h1>
+        <div class="row col-md-6 col-md-offset-2 custyle">
+            <div class="col-lg-12">
+                <h1 class="page-header">Telemaries by {{ name }}</h1>
+            </div>
         </div>
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Machine Id</th>
-                <th scope="col">Type</th>
-                <th scope="col"></th>
-
-            </tr>
-            </thead>
-            <tbody>
-            {% for user in album_dates %}
-
+        <div class="row col-md-6 col-md-offset-2 custyle">
+            <table class="table table-striped custab">
+                <thead>
                 <tr>
-                    <td>
-                        <p> {{ loop.index }}</p>
-                    </td>
-                    <td>
-                        <a href="{{ url_for('switch', username=user.uid) }}">
-                            <p> {{ user.identity }}</p>
-                        </a>
-                    </td>
-                    <td>
-                        <a href="{{ url_for('switch', username=user.uid) }}">
-                            <p> {{ user.type }}</p>
-                        </a>
-                    </td>
-                    <td>
-                        <a href="{{ url_for('delete_tele', uid=user.uid) }}">
-                            <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>
-                        </a>
-                    </td>
+                    <th scope="col">#</th>
+                    <th scope="col">Machine Id</th>
+                    <th scope="col">Type</th>
+                    <th scope="col"></th>
+
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for user in album_dates %}
+
+                    <tr>
+                        <td>
+                            <p> {{ loop.index }}</p>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('switch', username=user.uid) }}">
+                                <p> {{ user.identity }}</p>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('switch', username=user.uid) }}">
+                                <p> {{ user.type }}</p>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('delete_tele', uid=user.uid) }}" class="btn btn-danger btn-xs"><span
+                                    class="glyphicon glyphicon-remove"></span> Del</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
