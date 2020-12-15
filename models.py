@@ -19,9 +19,6 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=True)
     email = db.Column(db.String(50), unique=True, nullable=True)
     password = db.Column(db.String(255), nullable=True)
-    admin = db.Column(db.Boolean, default=False)
-    otp = db.Column(db.String(255), nullable=True)
-    active = db.Column(db.Boolean, default=False)
 
     telemarie = db.relationship('Telemarie', backref='users', cascade="all, delete")
     us_recipient = db.relationship('Recipient', backref='users', cascade="all, delete")

@@ -222,6 +222,7 @@ def telemarie(username):
         #     return {"message": "username not exist"}, 404
         user = User.query.filter_by(uid=int(username)).first()
         name = str(user.username).capitalize()
+        user_uid = user.username
         albums = Telemarie.query.filter_by(user_id=int(username)).all()
         return render_template("telemarie.html", album_dates=albums, name=name)
 
@@ -367,24 +368,27 @@ def delete_recipient(uid):
     return '', 204
 
 
-# @app.route('/create/user', methods=['POST', 'GET'])
-# def create_user():
-#     username = request.form['username']
-#     email = request.form['author']
-#     password = request.form['admin']
-#     admin = request.form['admin']
-#     otp = request.form['otp']
-#     active = request.form['active']
-#     user = User()
-#     user.username = username
-#     user.email = email
-#     user.password = password
-#     user.admin = admin
-#     user.otp = otp
-#     user.active = active
-#     db.session.add(user)
-#     db.session.commit()
-#     return redirect('/quote')
+@app.route('/create', methods=['POST', 'GET'])
+def creates():
+    return render_template("create.html")
+
+
+@app.route('/create/user', methods=['POST', 'GET'])
+def create_user():
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    verify_password = request.form['verify_password']
+    if password != verify_password:
+        error = "Passwords not matched"
+        return render_template("create.html", error=error)
+    user = User()
+    user.username = username
+    user.email = email
+    user.password = password
+    db.session.add(user)
+    db.session.commit()
+    return redirect('/users')
 
 
 if __name__ == '__main__':
