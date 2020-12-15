@@ -21,7 +21,7 @@ from flask_admin.contrib.sqla import ModelView
 from models import User, db, Super, Telemarie, Switch, Recipient
 
 UPLOAD_FOLDER = './upload'
-app = Flask(__name__)
+app = Flask(__name__, static_folder='images')
 path = op.join(op.dirname(__file__), 'statics')
 images = op.join(op.dirname(__file__), 'images')
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
@@ -60,7 +60,7 @@ class RecipientResource(Resource):
                 'phones': phones}, 200
 
 
-@app.route('/message')
+@app.route('/')
 def messege():
     return render_template('message.html')
 
@@ -73,7 +73,8 @@ def power_ops():
 @app.route('/send', methods=['POST'])
 def send():
     message = request.form['password']
-    _send_push(message)
+    machine = request.form['machines']
+    _send_push(message, machine)
     flash("Message Sent", 'info')
     return render_template('message.html')
 
@@ -88,9 +89,9 @@ def power():
     return redirect('/user')
 
 
-def _send_push(message):
-    requests.post("http://codebase.pk:9002/call",
-                  json={"procedure": "org.deskconn.message",
+def _send_push(message, machine):
+    requests.post("http://94.130.187.90:8080/call",
+                  json={"procedure": f"tm.{machine}.message",
                         "args": [message]})
 
 
@@ -136,15 +137,15 @@ def get_user(uid):
 #         return render_template('login.html', error=error)
 #     return render_template('login.html')
 
-@app.route('/', methods=['GET', 'POST'])
-def main():
-    user = User.query.all()
-    telemarie = Telemarie.query.all()
-    switch = Switch.query.all()
-    recipient = Recipient.query.all()
-
-    return render_template('index.html', title='Home', recipients=recipient,
-                           telemaries=telemarie, switches=switch)
+# @app.route('/', methods=['GET', 'POST'])
+# def main():
+#     user = User.query.all()
+#     telemarie = Telemarie.query.all()
+#     switch = Switch.query.all()
+#     recipient = Recipient.query.all()
+#
+#     return render_template('index2.html', title='Home', recipients=recipient,
+#                            telemaries=telemarie, switches=switch)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -399,4 +400,4 @@ if __name__ == '__main__':
     admin.add_link(MenuLink(name='Logout', url="/logout"))
 
     api.add_resource(RecipientResource, '/api/recipients/')
-    app.run(host='0.0.0.0', port=7778, debug=True)
+    app.run(host='0.0.0.0', port=7777, debug=True)
