@@ -224,35 +224,154 @@ def telemarie(username):
         name = str(user.username).capitalize()
         user_uid = user.username
         albums = Telemarie.query.filter_by(user_id=int(username)).all()
-        return render_template("telemarie.html", album_dates=albums, name=name)
+        return render_template("telemarie.html", album_dates=albums, name=name, user_uid=username)
 
 
-@app.route('/switch/<username>', methods=['GET'])
-def switch(username):
+@app.route('/switch/<user_uid>/<machine_id>', methods=['GET'])
+def switch(user_uid, machine_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     else:
         # user = User.query.filter_by(username=username).first()
         # if not user:
         #     return {"message": "username not exist"}, 404
-        telemarie = Telemarie.query.filter_by(user_id=int(username)).first()
+        telemarie = Telemarie.query.filter_by(user_id=int(machine_id)).first()
         # print(telemarie.identity)
-        albums = Switch.query.filter_by(telemarie_id=int(username)).all()
+        albums = Switch.query.filter_by(telemarie_id=int(machine_id)).all()
         # for album in albums:
         #     print(album.name)
-        return render_template("switch.html", album_dates=albums)
+        return render_template("switch.html", album_dates=albums, user_uid=user_uid, machine_id=machine_id)
 
 
-@app.route('/recipient/<username>', methods=['GET'])
-def recipient(username):
+@app.route('/recipient/<switch_id>/<user_id>/<machine_id>', methods=['GET'])
+def recipient(switch_id, user_id, machine_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     else:
         # user = User.query.filter_by(username=username).first()
         # if not user:
         #     return {"message": "username not exist"}, 404
-        albums = Recipient.query.filter_by(switch_id=int(username)).all()
-        return render_template("recipient.html", album_dates=albums)
+        recipients = Recipient.query.filter_by(switch_id=int(switch_id)).all()
+        return render_template("recipient.html", recipients=recipients)
+
+
+@app.route('/create', methods=['POST', 'GET'])
+def create():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    else:
+        return render_template("create_user.html")
+
+
+@app.route('/create/user', methods=['POST', 'GET'])
+def create_user():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    else:
+        if request.form['password'] != request.form['verify_password']:
+            error = "Passwords not matched"
+            return render_template("create_user.html", error=error)
+        user = User()
+        user.username = request.form['username']
+        user.email = request.form['email']
+        user.password = request.form['password']
+        db.session.add(user)
+        db.session.commit()
+        return redirect('/users')
+
+
+@app.route('/create_machin/<user_uid>', methods=['POST', 'GET'])
+def create_machine(user_uid):
+    return render_template("create_machine.html", user_uid=user_uid)
+
+
+@app.route('/create/machine/<user_uid>', methods=['POST', 'GET'])
+def create_machines(user_uid):
+    tele = Telemarie()
+    tele.identity = request.form['identity']
+    tele.type = request.form['type']
+    tele.user_id = user_uid
+    db.session.add(tele)
+    db.session.commit()
+    return redirect(f'/telemarie/{user_uid}')
+
+
+@app.route('/create_swicth/<user_uid>/<machine_id>', methods=['POST', 'GET'])
+def create_switch(user_uid, machine_id):
+    return render_template("create_switch.html", user_uid=user_uid, machine_id=machine_id)
+
+
+@app.route('/create/switch/<user_uid>/<machine_id>', methods=['POST', 'GET'])
+def create_switches(user_uid, machine_id):
+    switch = Switch()
+    switch.name = request.form['name']
+    switch.telemarie_id = machine_id
+    db.session.add(switch)
+    db.session.commit()
+    return redirect(f'/switch/{user_uid}/{machine_id}')
+
+
+@app.route('/create_recipient/<user_uid>/<machine_id>/<switch_id>', methods=['POST', 'GET'])
+def create_recipient(user_uid, machine_id, switch_id):
+    return render_template("create_switch.html", user_uid=user_uid, machine_id=machine_id, switch_id=switch_id)
+
+
+@app.route('/create/recipient/<user_uid>/<machine_id>/<switch_id>', methods=['POST', 'GET'])
+def create_recipients(user_uid, machine_id, switch_id):
+    recipient = Recipient()
+    recipient.name = request.form['name']
+    recipient.email = request.form['email']
+    recipient.name = request.form['phone']
+    recipient.user_id = user_uid
+    recipient.tele_id = machine_id
+    recipient.switch_id = switch_id
+    db.session.add(switch)
+    db.session.commit()
+    return redirect(f'/recipient/{switch_id}/{user_uid}/{machine_id}/')
+
+
+@app.route('/get_emails/<switch_id>', methods=['Get'])
+def get_emails(switch_id):
+    user = Recipient.query.filter_by(switch_id=switch_id).all()
+    print('test' + switch_id)
+    schema = UserSchema(many=True)
+    return schema.dump(user), 200
+
+
+@app.route('/delete_user/<uid>')
+def delete_user(uid):
+    user = User.query.filter_by(uid=uid).first()
+    if user:
+        db.session.delete(user)
+    db.session.commit()
+    return '', 204
+
+
+@app.route('/delete_tele/<uid>')
+def delete_tele(uid):
+    tele = Telemarie.query.filter_by(uid=uid).first()
+    if tele:
+        db.session.delete(tele)
+    db.session.commit()
+    return '', 204
+
+
+@app.route('/delete_switch/<uid>')
+def delete_switch(uid):
+    switch = Switch.query.filter_by(uid=uid).first()
+    if switch:
+        db.session.delete(switch)
+    db.session.commit()
+    return '', 204
+
+
+@app.route('/delete_recipient/<uid>')
+def delete_recipient(uid):
+    recipient = Recipient.query.filter_by(uid=uid).first()
+    if recipient:
+        db.session.delete(recipient)
+    db.session.commit()
+    return '', 204
 
 
 class MyAdminIndexView(AdminIndexView):
@@ -322,73 +441,6 @@ class TelemarieView(MyModeView):
 class TelemarieView(MyModeView):
     can_edit = True
     can_create = True
-
-
-@app.route('/get_emails/<switch_id>', methods=['Get'])
-def get_emails(switch_id):
-    user = Recipient.query.filter_by(switch_id=switch_id).all()
-    print('test' + switch_id)
-    schema = UserSchema(many=True)
-    return schema.dump(user), 200
-
-
-@app.route('/delete_user/<uid>')
-def delete_user(uid):
-    user = User.query.filter_by(uid=uid).first()
-    if user:
-        db.session.delete(user)
-    db.session.commit()
-    return '', 204
-
-
-@app.route('/delete_tele/<uid>')
-def delete_tele(uid):
-    tele = Telemarie.query.filter_by(uid=uid).first()
-    if tele:
-        db.session.delete(tele)
-    db.session.commit()
-    return '', 204
-
-
-@app.route('/delete_switch/<uid>')
-def delete_switch(uid):
-    switch = Switch.query.filter_by(uid=uid).first()
-    if switch:
-        db.session.delete(switch)
-    db.session.commit()
-    return '', 204
-
-
-@app.route('/delete_recipient/<uid>')
-def delete_recipient(uid):
-    recipient = Recipient.query.filter_by(uid=uid).first()
-    if recipient:
-        db.session.delete(recipient)
-    db.session.commit()
-    return '', 204
-
-
-@app.route('/create', methods=['POST', 'GET'])
-def creates():
-    return render_template("create.html")
-
-
-@app.route('/create/user', methods=['POST', 'GET'])
-def create_user():
-    username = request.form['username']
-    email = request.form['email']
-    password = request.form['password']
-    verify_password = request.form['verify_password']
-    if password != verify_password:
-        error = "Passwords not matched"
-        return render_template("create.html", error=error)
-    user = User()
-    user.username = username
-    user.email = email
-    user.password = password
-    db.session.add(user)
-    db.session.commit()
-    return redirect('/users')
 
 
 if __name__ == '__main__':

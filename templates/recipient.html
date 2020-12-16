@@ -43,28 +43,28 @@
             </tr>
             </thead>
             <tbody>
-            {% for user in album_dates %}
+            {% for recipient in recipients %}
 
                 <tr>
                     <td>
                         <p> {{ loop.index }}</p>
                     </td>
                     <td>
-                            <p> {{ user.name }}</p>
+                            <p> {{ recipient.name }}</p>
                     </td>
                     <td>
-                            <p> {{ user.email }}</p>
+                            <p> {{ recipient.email }}</p>
                     </td>
                     <td>
-                            <p> {{ user.phone }}</p>
+                            <p> {{ recipient.phone }}</p>
                         </a>
                     </td>
                     <td>
-                            <p> {{ user.active }}</p>
+                            <p> {{ recipient.active }}</p>
                     </td>
 
                                         <td>
-                                            <a href="{{ url_for('delete_recipient', uid=user.uid) }}">
+                                            <a href="{{ url_for('delete_recipient', uid=recipient.uid) }}">
                                                 <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>
                                             </a>
                                         </td>

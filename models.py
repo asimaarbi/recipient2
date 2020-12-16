@@ -59,7 +59,6 @@ class Recipient(db.Model):
     name = db.Column(db.String(50), nullable=True)
     email = db.Column(db.String(50), nullable=True)
     phone = db.Column(db.String(255), nullable=True)
-    active = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.uid"))
     tele_id = db.Column(db.Integer, db.ForeignKey("telemaries.uid"))
     switch_id = db.Column(db.Integer, db.ForeignKey("switches.uid"))

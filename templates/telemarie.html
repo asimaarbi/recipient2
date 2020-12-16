@@ -54,7 +54,10 @@
                     <th scope="col">#</th>
                     <th scope="col">Machine Id</th>
                     <th scope="col">Type</th>
-                    <th scope="col"></th>
+                    <th scope="col">Type
+                        <a href="{{ url_for('create_machine', user_uid=user_uid) }}" class="btn-primary" type="button">Create
+                        </a>
+                    </th>
 
                 </tr>
                 </thead>
@@ -66,18 +69,18 @@
                             <p> {{ loop.index }}</p>
                         </td>
                         <td>
-                            <a href="{{ url_for('switch', username=user.uid) }}">
+                            <a href="{{ url_for('switch', user_uid=user_uid, machine_id=user.uid) }}">
                                 <p> {{ user.identity }}</p>
                             </a>
                         </td>
                         <td>
-                            <a href="{{ url_for('switch', username=user.uid) }}">
+                            <a href="{{ url_for('switch', user_uid=user_uid, machine_id=user.uid) }}">
                                 <p> {{ user.type }}</p>
                             </a>
                         </td>
                         <td>
                             <a href="{{ url_for('delete_tele', uid=user.uid) }}" class="btn btn-danger btn-xs"><span
-                                    class="glyphicon glyphicon-remove"></span> Del</a>
+                                    class="glyphicon glyphicon-remove" onclick="tryReload()"></span> Del</a>
                         </td>
                     </tr>
                 {% endfor %}
