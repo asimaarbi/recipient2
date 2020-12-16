@@ -217,12 +217,13 @@ def telemarie(username):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     else:
+        name= None
         # user = User.query.filter_by(username=username).first()
         # if not user:
         #     return {"message": "username not exist"}, 404
         user = User.query.filter_by(uid=int(username)).first()
-        name = str(user.username).capitalize()
-        user_uid = user.username
+        if user:
+            name = str(user.username).capitalize()
         albums = Telemarie.query.filter_by(user_id=int(username)).all()
         return render_template("telemarie.html", album_dates=albums, name=name, user_uid=username)
 
@@ -232,8 +233,13 @@ def switch(user_uid, machine_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     else:
+        switch_id = 1
+        machine = Telemarie.query.filter_by(uid=int(machine_id)).first()
+        mtype = machine.type
+        if mtype == 'telemarie':
+            return redirect(f'/recipient/{switch_id}/{user_uid}/{machine_id}')
         albums = Switch.query.filter_by(telemarie_id=int(machine_id)).all()
-        return render_template("switch.html", album_dates=albums, user_uid=user_uid, machine_id=machine_id)
+        return render_template("switch.html", album_dates=albums, user_uid=user_uid, machine_id=machine_id, type=mtype)
 
 
 @app.route('/recipient/<switch_id>/<user_id>/<machine_id>', methods=['GET'])

@@ -20,8 +20,11 @@
     <div class="row">
         <div>
             <ul class="nav navbar-nav navbar-left">
-                <li><a href="{{ url_for('switch', user_uid=user_uid, machine_id=machine_id) }}">switches</a>
-                </li>
+                {% if type == telemarie %}
+                    <li><a href="/telemarie/{{ user_uid }}">machine</a></li>
+                {% elif type == teleclause%}
+                    <li><a href="{{ url_for('switch', user_uid=user_uid, machine_id=machine_id) }}">switches</a></li>
+                {% endif %}
             </ul>
         </div>
         <div>
