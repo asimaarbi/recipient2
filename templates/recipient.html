@@ -19,7 +19,14 @@
 
     <div class="row">
         <div>
+            <ul class="nav navbar-nav navbar-left">
+                <li><a href="{{ url_for('switch', user_uid=user_uid, machine_id=machine_id) }}">switches</a>
+                </li>
+            </ul>
+        </div>
+        <div>
             <ul class="nav navbar-nav navbar-right">
+
                 {% if session['logged_in'] == True %}
                     <li><a href="/logout">Logout <span class="sr-only">(current)</span></a></li>
                 {% else %}
@@ -38,7 +45,11 @@
                 <th scope="col">Email</th>
                 <th scope="col">Phone</th>
                 <th scope="col">Status</th>
-                <th scope="col"></th>
+                <th scope="col">
+                    <a href="{{ url_for('create_recipient', switch_id=switch_id, user_uid=user_uid, machine_id=machine_id) }}"
+                       class="btn-primary" type="button">Create
+                    </a>
+                </th>
 
             </tr>
             </thead>
@@ -50,24 +61,21 @@
                         <p> {{ loop.index }}</p>
                     </td>
                     <td>
-                            <p> {{ recipient.name }}</p>
+                        <p> {{ recipient.name }}</p>
                     </td>
                     <td>
-                            <p> {{ recipient.email }}</p>
+                        <p> {{ recipient.email }}</p>
                     </td>
                     <td>
-                            <p> {{ recipient.phone }}</p>
+                        <p> {{ recipient.phone }}</p>
                         </a>
                     </td>
-                    <td>
-                            <p> {{ recipient.active }}</p>
-                    </td>
 
-                                        <td>
-                                            <a href="{{ url_for('delete_recipient', uid=recipient.uid) }}">
-                                                <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>
-                                            </a>
-                                        </td>
+                    <td>
+                        <a href="{{ url_for('delete_recipient', uid=recipient.uid) }}">
+                            <button class="btn-danger" type="button" onclick="tryReload()">Delete</button>
+                        </a>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>

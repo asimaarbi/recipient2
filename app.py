@@ -232,14 +232,7 @@ def switch(user_uid, machine_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     else:
-        # user = User.query.filter_by(username=username).first()
-        # if not user:
-        #     return {"message": "username not exist"}, 404
-        telemarie = Telemarie.query.filter_by(user_id=int(machine_id)).first()
-        # print(telemarie.identity)
         albums = Switch.query.filter_by(telemarie_id=int(machine_id)).all()
-        # for album in albums:
-        #     print(album.name)
         return render_template("switch.html", album_dates=albums, user_uid=user_uid, machine_id=machine_id)
 
 
@@ -252,7 +245,8 @@ def recipient(switch_id, user_id, machine_id):
         # if not user:
         #     return {"message": "username not exist"}, 404
         recipients = Recipient.query.filter_by(switch_id=int(switch_id)).all()
-        return render_template("recipient.html", recipients=recipients)
+        return render_template("recipient.html", recipients=recipients, user_uid=user_id, machine_id=machine_id,
+                               switch_id=switch_id)
 
 
 @app.route('/create', methods=['POST', 'GET'])
@@ -313,7 +307,7 @@ def create_switches(user_uid, machine_id):
 
 @app.route('/create_recipient/<user_uid>/<machine_id>/<switch_id>', methods=['POST', 'GET'])
 def create_recipient(user_uid, machine_id, switch_id):
-    return render_template("create_switch.html", user_uid=user_uid, machine_id=machine_id, switch_id=switch_id)
+    return render_template("create_recipient.html", user_uid=user_uid, machine_id=machine_id, switch_id=switch_id)
 
 
 @app.route('/create/recipient/<user_uid>/<machine_id>/<switch_id>', methods=['POST', 'GET'])
@@ -321,19 +315,19 @@ def create_recipients(user_uid, machine_id, switch_id):
     recipient = Recipient()
     recipient.name = request.form['name']
     recipient.email = request.form['email']
-    recipient.name = request.form['phone']
+    recipient.phone = request.form['phone']
     recipient.user_id = user_uid
     recipient.tele_id = machine_id
     recipient.switch_id = switch_id
-    db.session.add(switch)
+    db.session.add(recipient)
     db.session.commit()
-    return redirect(f'/recipient/{switch_id}/{user_uid}/{machine_id}/')
+    print(switch_id)
+    return redirect(f'/recipient/{switch_id}/{user_uid}/{machine_id}')
 
 
 @app.route('/get_emails/<switch_id>', methods=['Get'])
 def get_emails(switch_id):
     user = Recipient.query.filter_by(switch_id=switch_id).all()
-    print('test' + switch_id)
     schema = UserSchema(many=True)
     return schema.dump(user), 200
 
