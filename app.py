@@ -44,13 +44,16 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
 
 class RecipientResource(Resource):
-    def get(self):
+    def post(self):
         emails = []
         phones = []
         parser = reqparse.RequestParser(bundle_errors=True)
         parser.add_argument('switch', type=str, help='Switch no', required=True)
+        parser.add_argument('machine', type=str, help='machine id', required=True)
         args = parser.parse_args()
-        users = Recipient.query.filter_by(switch_id=args['switch']).all()
+        users = Recipient.query.filter(
+            (Recipient.switch_id == args['switch']) & (Recipient.tele_id == args['machine'])).all()
+        # users = Recipient.query.filter_by(switch_id=args['switch']).all()
         # schema = UserSchema(many=True)
         # return schema.dump(users)
         for user in users:
@@ -335,6 +338,18 @@ def get_emails(switch_id, machine_id):
     return schema.dump(user), 200
 
 
+@app.route('/api/recipients/<switch_id>/<machine_id>', methods=['Get'])
+def get_recipients(switch_id, machine_id):
+    emails = []
+    phones = []
+    users = Recipient.query.filter((Recipient.switch_id == switch_id) & (Recipient.tele_id == machine_id)).all()
+    for user in users:
+        emails.append(user.email)
+        phones.append(user.phone)
+    return {'emails': emails,
+            'phones': phones}, 200
+
+
 @app.route('/delete_user/<uid>')
 def delete_user(uid):
     user = User.query.filter_by(uid=uid).first()
@@ -452,5 +467,5 @@ if __name__ == '__main__':
     admin.add_link(MenuLink(name='Power-Ops', url="/power_ops"))
     admin.add_link(MenuLink(name='Logout', url="/logout"))
 
-    api.add_resource(RecipientResource, '/api/recipients/')
+    # api.add_resource(RecipientResource, '/api/recipients/')
     app.run(host='0.0.0.0', port=7777, debug=True)
