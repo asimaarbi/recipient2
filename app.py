@@ -217,7 +217,7 @@ def telemarie(username):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     else:
-        name= None
+        name = None
         # user = User.query.filter_by(username=username).first()
         # if not user:
         #     return {"message": "username not exist"}, 404
@@ -328,9 +328,9 @@ def create_recipients(user_uid, machine_id, switch_id):
     return redirect(f'/recipient/{switch_id}/{user_uid}/{machine_id}')
 
 
-@app.route('/get_emails/<switch_id>', methods=['Get'])
-def get_emails(switch_id):
-    user = Recipient.query.filter_by(switch_id=switch_id).all()
+@app.route('/get_emails/<switch_id>/<machine_id>', methods=['Get'])
+def get_emails(switch_id, machine_id):
+    user = Recipient.query.filter((Recipient.switch_id == switch_id) & (Recipient.tele_id == machine_id)).all()
     schema = UserSchema(many=True)
     return schema.dump(user), 200
 
