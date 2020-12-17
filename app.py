@@ -235,11 +235,8 @@ def switch(user_uid, machine_id):
     else:
         switch_id = 1
         machine = Telemarie.query.filter_by(uid=int(machine_id)).first()
-        mtype = machine.type
-        if mtype == 'telemarie':
-            return redirect(f'/recipient/{switch_id}/{user_uid}/{machine_id}')
         albums = Switch.query.filter_by(telemarie_id=int(machine_id)).all()
-        return render_template("switch.html", album_dates=albums, user_uid=user_uid, machine_id=machine_id, type=mtype)
+        return render_template("switch.html", album_dates=albums, user_uid=user_uid, machine_id=machine_id)
 
 
 @app.route('/recipient/<switch_id>/<user_id>/<machine_id>', methods=['GET'])
